@@ -1,1 +1,1 @@
-export default function Home() { return <h1>Multi-tenant app YES</h1>; }
+export default function Home() { return <h1>Multi-tenant app NO</h1>; }
