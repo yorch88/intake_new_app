@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: mtqa-backend
+    env_file:
+      - ./env/backend.env
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ../backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - mtqa-network
+
+  worker:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: mtqa-worker
+    env_file:
+      - ./env/backend.env
+    command: python -m app.workers.intake_worker
+    volumes:
+      - ../backend:/app
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - mtqa-network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: mtqa-frontend
+    env_file:
+      - ./env/frontend.env
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: npm run dev
+    volumes:
+      - ../frontend:/app
+      - node_modules_front:/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - mtqa-network
+
+  mongo:
+    image: mongo:7
+    container_name: mtqa-mongo
+    env_file:
+      - ./env/mongo.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mtqa-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: mtqa-redis
+    env_file:
+      - ./env/redis.env
+    ports:
+      - "6379:6379"
+    networks:
+      - mtqa-network
+
+networks:
+  mtqa-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  node_modules_front:
