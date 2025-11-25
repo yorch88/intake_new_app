@@ -5,5 +5,5 @@ python-dotenv
 motor
 redis
 python-jose[cryptography]
-passlib[bcrypt]
+passlib
 email-validator

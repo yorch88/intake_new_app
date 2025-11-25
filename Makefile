@@ -48,3 +48,9 @@ logs-backend:
 .PHONY: logs-frontend
 logs-frontend:
 	$(DC) logs -f frontend
+
+exc-backend:
+	docker exec -it mtqa-backend bash
+
+exc-frontend:
+	docker exec -it mtqa-frontend bash
